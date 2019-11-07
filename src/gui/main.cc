@@ -157,7 +157,7 @@ static void copyQt4UserDB()
 	// Do a copy so an older version could keep working
 	if (qt4DataFile.exists()) {
 		qt4DataFile.copy(Database::defaultDBFile());
-		QMessageBox::information(0, QCoreApplication::translate("main.cc", "Data migrated"), QCoreApplication::translate("main.cc", "Welcome to Tagaini Jisho 2.0! Your user data has successfully been migrated from Tagaini 1.0 and you should find it as it was.\n\nIf you still have an old version of Tagaini installed, please note that changes made in Tagaini 2 will not be visible on Tagaini 1 and vice-versa. If you still have your old Tagaini version, it is recommended that you uninstall it to avoid confusion."));
+		QMessageBox::information(0, QCoreApplication::translate("main.cc", "Data migrated"), QCoreApplication::translate("main.cc", "Welcome to Tagaini Jisho 1.2! Your user data has successfully been migrated from Tagaini 1.0 and you should find it as it was.\n\nIf you still have an old version of Tagaini installed, please note that changes made in Tagaini 1.2 will not be visible on Tagaini 1.0 and vice-versa. If you still have your old Tagaini version, it is recommended that you uninstall it to avoid confusion."));
 	}
 }
 
@@ -225,7 +225,15 @@ int main(int argc, char *argv[])
 		locale = Lang::preferredGUILanguage.value();
 	// Otherwise try the system default
 	} else {
-		locale = QLocale::system().name().left(2);
+		QString name = QLocale::system().name();
+#ifdef Q_OS_OSX
+		// QLocale::system() ignores per-app configuration on MacOS.
+		QSettings settings;
+		QStringList appleLanguages = settings.value("AppleLanguages").toStringList();
+		if (!appleLanguages.isEmpty())
+			name = appleLanguages.first();
+#endif
+		locale = name.left(2);
 	}
 	QLocale::setDefault(QLocale(locale));
 	
